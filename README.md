@@ -1,0 +1,1 @@
+# mongoose-media-plugin
