@@ -1,0 +1,29 @@
+{
+  "name": "mongoose-media-plugin",
+  "version": "0.0.1",
+  "description": "Mongoose plugin for handling media files in the cloud.",
+  "main": "plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interactiverooster/mongoose-media-plugin.git"
+  },
+  "keywords": [
+    "mongoose",
+    "mongodb",
+    "aws",
+    "s3",
+    "audio",
+    "video",
+    "ffmpeg",
+    "media"
+  ],
+  "author": "Dan Bowles",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/interactiverooster/mongoose-media-plugin/issues"
+  },
+  "homepage": "https://github.com/interactiverooster/mongoose-media-plugin#readme"
+}
