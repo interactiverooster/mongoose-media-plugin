@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        ul {
+            padding: 0;
+        }
+        #progress {
+            width: 100%
+        }
+        #error {
+            white-space: pre-wrap;
+        }
+        #progress[value="0"] {
+            display: none;
+        }
+    </style>
+    <title>Mongoose media plugin</title>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <h1>Mongoose media plugin</h1>
+        <hr />
+        <div class="row">
+            <div class="col">
+                <h3>Add file:</h3>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="file">File to upload</label>
+                        <input type="file" class="form-control-file" name="body" id="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+                <progress id="progress" value="0"></progress>
+                <hr/>
+                <pre id="error"></pre>
+            </div>
+            <div class="col">
+                <h3>Recent files...</h3>
+                <div id="latest"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        let
+            uploadForm = document.getElementById('uploadForm'),
+            latest = document.getElementById('latest'),
+            progress = document.getElementById( "progress" ),
+            getLatest = function() {
+                fetch( "/latest" )
+                    .then( ( response ) => {
+                        return response.json();
+                    })
+                    .then( ( json ) => {
+                        if ( json.length === 0 ) {
+                            let msg = document.createElement( "span" );
+                            latest.innerHTML = null;
+                            msg.textContent = "No recent uploads";
+                            return latest.append( msg );
+                        }
+
+                        let
+                            ul = document.createElement( "ul" );
+
+                        ul.className = "list-group";
+                        latest.innerHTML = null;
+
+                        json.map( ( file ) => {
+                            let
+                                li = document.createElement( "li" ),
+                                group = document.createElement( "div" ),
+                                goto = document.createElement( "a" ),
+                                download = document.createElement( "a" ),
+                                del = document.createElement( "a" );
+
+                            li.className = "list-group-item" ;
+
+                            group.className = "btn-group btn-block";
+
+                            goto.className = "btn btn-primary btn-block" ;
+                            goto.innerText = `${file.name} - ( ${file.Size} bytes )`;
+                            goto.href = `/media/${file._id}`;
+
+                            del.className = "btn btn-danger" ;
+                            del.innerText = `Delete`;
+                            del.href = `/delete/${file._id}`;
+                            del.onclick = function(e) {
+                                e.preventDefault();
+                                let
+                                    xhr = new XMLHttpRequest();
+
+                                xhr.open( "GET", this.href, true );
+                                xhr.send();
+                                xhr.addEventListener( "load", getLatest );
+                                xhr.onerror = ( err ) => {
+                                    console.error( err );
+                                };
+                            };
+
+                            download.className = "btn btn-light";
+                            download.href = `/download/${file._id}`;
+                            download.innerText = "Download";
+
+                            group.append( goto );
+                            group.append( download );
+                            group.append( del );
+
+                            li.append( group );
+                            ul.append( li );
+
+                        } );
+
+                        latest.append( ul );
+                    } );
+            };
+
+        getLatest();
+
+        uploadForm.onsubmit = async function( e ) {
+            e.preventDefault();
+
+            let
+                form = new FormData(uploadForm),
+                progress = document.getElementById( "progress" ),
+                xhr = new XMLHttpRequest(),
+                error = document.getElementById( "error" );
+
+            error.innerText = "";
+
+            // Add any event handlers here...
+            xhr.open('POST', "/", true);
+
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    progress.value = e.loaded/e.total;
+                }
+            };
+
+            xhr.upload.onloadstart = function (e) {
+                progress.value = 0;
+            };
+
+            xhr.upload.onloadend = function (e) {
+                progress.value = 0;
+            };
+
+            xhr.send(form);
+
+            xhr.addEventListener("load", () => {
+
+                let
+                    response = JSON.stringify( JSON.parse( xhr.response ), null, 4 );
+
+                error.innerText = response;
+                progress.value = 0;
+                getLatest();
+            } );
+        };
+    </script>
+</body>
+</html>

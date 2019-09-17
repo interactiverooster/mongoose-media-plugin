@@ -11,3 +11,4 @@ Adds read and write stream capabilities to a mongo collection. The stream is off
 ```sh
 npm install mongoose-media-plugin
 ```
+
