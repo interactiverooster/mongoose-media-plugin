@@ -1,6 +1,6 @@
 # mongoose-media-plugin
-[![Build Status](https://travis-ci.com/interactiverooster/mongoose-media-plugin.svg?token=u5PqzFTWaby2cxZfQxKg&branch=master)](https://travis-ci.com/interactiverooster/mongoose-media-plugin)
-
+[![Build Status](https://travis-ci.org/interactiverooster/mongoose-media-plugin.svg?branch=master)](https://travis-ci.org/interactiverooster/mongoose-media-plugin)
+[![Coverage Status](https://coveralls.io/repos/github/interactiverooster/mongoose-media-plugin/badge.svg?branch=master)](https://coveralls.io/github/interactiverooster/mongoose-media-plugin?branch=master)
 ## Description
 [Mongoose](https://mongoosejs.com/) plugin for managing [S3 files](https://aws.amazon.com/s3) as if they were stored in mongo.
 
