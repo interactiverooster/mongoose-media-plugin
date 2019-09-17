@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "nyc mocha -r ts-node/register test/**/*.spec.ts --recursive",
-    "example": "ts-node src/example/Server.ts",
+    "example": "ts-node lib/example/Server.js",
     "build": "tsc -p ."
   },
   "nyc": {
