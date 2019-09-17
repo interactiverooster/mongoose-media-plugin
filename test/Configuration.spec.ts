@@ -1,6 +1,6 @@
-import Configuration from './Configuration';
+import Configuration from '../src/Configuration';
 import { expect } from 'chai';
-import { S3, Credentials, Service } from "aws-sdk";
+import { Service } from "aws-sdk";
 import { v1 as UID } from 'uuid';
 import 'mocha';
 
@@ -106,8 +106,8 @@ describe( "Validate configuration", () => {
             err = e;
         }
 
-        expect( err ).to.not.be.null;
-    } );
+        expect( err ).to.be.null;
+    } ).timeout( 50000 );
 } );
 
 

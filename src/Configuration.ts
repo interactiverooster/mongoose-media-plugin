@@ -1,13 +1,19 @@
 import { S3, Credentials, Config as AWSConfig } from 'aws-sdk';
 
+/**
+ * @todo Enable other cloud providers ( Google Cloud / Azure )
+ * @body Only AWS is currently supported.
+ */
+
 interface Config {
     AWS_ACCESS_KEY_ID?: string,
     AWS_SECRET_ACCESS_KEY?: string,
     bucket: string,
+    types?: string[],
     region?: string,
-    processImages?: boolean
-    imageDimensions?: [ [ number, number ] ],
-    processVideos?: boolean,
+    // processImages?: boolean
+    // imageDimensions?: [ [ number, number ] ],
+    // processVideos?: boolean,
     createBucket?:boolean
 }
 
@@ -20,28 +26,44 @@ export default class Configuration {
     readonly AWS:AWSConfig;
     readonly region:string;
     readonly createBucket:boolean;
+    readonly processImages?: boolean;
+    readonly imageDimensions?: [ [ number, number ] ];
+    readonly processVideos?: boolean;
+    readonly types?:string[];
 
-    private processImages?: boolean;
-    private imageDimensions?: [ [ number, number ] ];
-    private processVideos?: boolean;
     private verified: boolean;
 
     public Credentials: Credentials;
+    public Bucket:any;
 
     constructor ( config:Config ) {
 
         this.AWS_ACCESS_KEY_ID = config.AWS_ACCESS_KEY_ID ? config.AWS_ACCESS_KEY_ID : process.env.AWS_ACCESS_KEY_ID;
-        this.AWS_SECRET_ACCESS_KEY = config.AWS_SECRET_ACCESS_KEY ? config.AWS_SECRET_ACCESS_KEY : process.env.AWS_SECRET_ACCESS_KEY;
+        this.AWS_SECRET_ACCESS_KEY = config.AWS_SECRET_ACCESS_KEY
+            ? config.AWS_SECRET_ACCESS_KEY
+            : process.env.AWS_SECRET_ACCESS_KEY;
+
         this.bucket = config.bucket;
         this.region = config.region || 'us-east-1';
-        this.processImages = config.processImages;
-        this.imageDimensions = config.imageDimensions;
-        this.processVideos = config.processVideos;
+        this.types = ( config.types && Array.isArray(config.types) )
+            ? config.types
+            : [ "image/*", "video/mp4", "video/webm", "video/quicktime", "application/pdf", "text/*" ];
+
+        /**
+         * @todo Process media
+         * @body Create resize images and normalise video content for web and compatibility ( webm + mp4 etc. ).
+         */
+        // this.processImages = config.processImages;
+        // this.imageDimensions = config.imageDimensions;
+        // this.processVideos = config.processVideos;
         this.createBucket = config.createBucket;
 
         if ( !this.AWS_ACCESS_KEY_ID || !this.AWS_SECRET_ACCESS_KEY ) {
-            throw new Error( `Both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY need to be set, got AWS_ACCESS_KEY_ID=${this.AWS_ACCESS_KEY_ID}
-            and AWS_SECRET_ACCESS_KEY=${this.AWS_SECRET_ACCESS_KEY}. Pass in arguments or in your env properties.`)
+            throw new Error(
+                `Both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY need to be set,got
+                AWS_ACCESS_KEY_ID=${this.AWS_ACCESS_KEY_ID} and AWS_SECRET_ACCESS_KEY=${this.AWS_SECRET_ACCESS_KEY}.
+                Pass in arguments or in your env properties.`
+            )
         }
 
         this.Credentials = new Credentials( this.AWS_ACCESS_KEY_ID, this.AWS_SECRET_ACCESS_KEY );
@@ -74,13 +96,8 @@ export default class Configuration {
             }
 
             if ( e.statusCode === 404 ) {
-                try {
-                    await this._createBucket();
-                    return this.Configure();
-                }
-                catch( s3err ) {
-                    throw s3err;
-                }
+                await this._createBucket();
+                return this.Configure();
             }
 
             throw e;
@@ -91,7 +108,6 @@ export default class Configuration {
         return new Promise( ( resolve, reject ) => {
             this.S3.headBucket({ Bucket: this.bucket }, (err, data) => {
                 if (err) {
-                    // console.log(err, err.stack);
                     return reject( err );
                 }
                 this.verified = true;
@@ -102,11 +118,14 @@ export default class Configuration {
 
     private async _createBucket():Promise<any> {
         return new Promise( ( resolve, reject ) => {
-            this.S3.createBucket({ Bucket: this.bucket }, (err, data) => {
+            this.S3.createBucket({
+                Bucket: this.bucket,
+                ACL: "private"
+            }, (err, data) => {
                 if (err) {
-                    // console.log(err, err.stack);
                     return reject( err );
                 }
+                this.Bucket = data;
                 return resolve( data );
             });
         } );
