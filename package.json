@@ -4,9 +4,7 @@
   "description": "Mongoose plugin for handling media files in the cloud.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.spec.ts --recursive",
-    "coverage": "nyc mocha -r ts-node/register test/**/*.spec.ts --recursive | coveralls",
-    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "test": "nyc --reporter lcovonly mocha -r ts-node/register test/**/*.spec.ts --recursive && codecov",
     "example": "npm run build && node example/Server.js",
     "build": "tsc -p ."
   },

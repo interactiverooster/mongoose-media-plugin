@@ -31,7 +31,7 @@ describe( "Create filesystem",  () => {
         }
 
         expect( err ).to.be.null;
-    } );
+    } ).timeout(10000)
 
 } );
 
