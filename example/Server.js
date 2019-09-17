@@ -157,11 +157,6 @@ const
         })
     } );
 
-    App.use(function (err, req, res ) {
-        console.error(err.stack);
-        return res.status(500).json({ code: 500, error: err.message })
-    })
-
 } )();
 
 App.listen( PORT, () => {
