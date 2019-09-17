@@ -1,6 +1,6 @@
 # mongoose-media-plugin
 [![Build Status](https://travis-ci.org/interactiverooster/mongoose-media-plugin.svg?branch=master)](https://travis-ci.org/interactiverooster/mongoose-media-plugin)
-[![Coverage Status](https://coveralls.io/repos/github/interactiverooster/mongoose-media-plugin/badge.svg?branch=master)](https://coveralls.io/github/interactiverooster/mongoose-media-plugin?branch=master)
+[![codecov](https://codecov.io/gh/interactiverooster/mongoose-media-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/interactiverooster/mongoose-media-plugin)
 ## Description
 [Mongoose](https://mongoosejs.com/) plugin for managing [S3 files](https://aws.amazon.com/s3) as if they were stored in mongo.
 
@@ -120,4 +120,4 @@ $ npm test
 
 ### License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
