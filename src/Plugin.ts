@@ -90,7 +90,7 @@ class MediaPlugin {
 
         this.Schema.virtual( "body" )
             .get( function() {
-                if ( this.__pendingDelete ) {
+                if ( this.__pendingDelete || this.__Stream ) {
                     return null;
                 }
                 return self.FileSystem.createReadStream( this._id.toString() );
