@@ -1,6 +1,6 @@
 {
   "name": "mongoose-media-plugin",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Mongoose plugin for handling media files in the cloud.",
   "main": "lib/index.js",
   "scripts": {
