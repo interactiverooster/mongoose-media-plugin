@@ -1,5 +1,4 @@
 import Configuration from './Configuration';
-import { EventEmitter as Emitter } from 'events'
 import { S3 } from 'aws-sdk'
 import * as stream from "stream";
 

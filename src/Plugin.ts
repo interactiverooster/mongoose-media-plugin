@@ -5,7 +5,6 @@ import TypeStream from './StreamType';
 import ReadStream from 'stream';
 import mongoose from 'mongoose';
 import mtype from 'stream-mmmagic';
-import {bool} from "aws-sdk/clients/signer";
 
 interface inspected {
     mime: {
@@ -54,7 +53,7 @@ class MediaPlugin {
         this.mimeValidator = this.makeMimeValidator();
 
         this.Schema.methods.range = function( range:string ) {
-            return self.FileSystem.createReadStream( this._id.toString(), range );
+            return self.FileSystem.createReadStream( MediaPlugin.path( this ), range );
         };
 
         this.Schema.pre( "save", function( next ) {
@@ -81,7 +80,7 @@ class MediaPlugin {
                     return next( err );
                 }
 
-                self.FileSystem.unlink( flagged._id.toString() )
+                self.FileSystem.unlink( MediaPlugin.path( flagged ) )
                     .then( () => {
                         return next();
                     } );
@@ -99,6 +98,10 @@ class MediaPlugin {
                 this.__Stream = v;
             } );
 
+    }
+
+    public static path( doc ):string {
+        return doc._id.toString();
     }
 
     private makeMimeValidator() {
@@ -175,7 +178,7 @@ class MediaPlugin {
                         doc.ContentType = result.mime.type;
                     }
 
-                    remote = this.FileSystem.createWriteStream( doc._id.toString(), options );
+                    remote = this.FileSystem.createWriteStream( MediaPlugin.path( doc ), options );
                     result.output.pipe( remote );
 
                     remote.on( "error", ( err ) => {
