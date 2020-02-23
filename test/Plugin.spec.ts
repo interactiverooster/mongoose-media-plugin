@@ -50,12 +50,6 @@ describe( "DB",  () => {
         })()
     } ).timeout(50000);
 
-    it( "Should be cached", ( done  => {
-        expect( fs.existsSync( `/tmp/${id}` ) ).to.not.be.true;
-        done();
-    } ) ).timeout(50000);
-
-
     it( "Should be invalid", ( done ) => {
         ( async() => {
             let
@@ -87,6 +81,11 @@ describe( "DB",  () => {
             } )
             .catch( done );
     } ).timeout(50000);
+
+    it( "Should be cached", ( done  => {
+        expect( fs.existsSync( `/tmp/${id}` ) ).to.be.true;
+        done();
+    } ) ).timeout(50000);
 
     it( "Should update", ( done ) => {
         let

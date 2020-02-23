@@ -82,7 +82,7 @@ export default class FileSystem {
 
             const
                 readStream = this.S3.getObject( params ).createReadStream(),
-                writeStream = fs.createWriteStream( '/tmp/${key' );
+                writeStream = fs.createWriteStream( `/tmp/${key}` );
 
             readStream.pipe( writeStream );
         }
@@ -91,12 +91,25 @@ export default class FileSystem {
     }
 
     public createWriteStream( key:string, options?:object ):MockStream {
+
         if ( this.useCache ) {
             if (this.checkLocalCache(key)) {
                 fs.unlinkSync( `/tmp/${key}`)
             }
         }
-        return new MockStream( this.S3, this.bucket, key, options );
+
+        const stream = new MockStream( this.S3, this.bucket, key, options );
+
+        if ( this.useCache ) {
+
+            const
+                readStream = stream,
+                writeStream = fs.createWriteStream( `/tmp/${key}` );
+
+            readStream.pipe( writeStream );
+        }
+
+        return stream;
     }
 
     public head( key ) {
