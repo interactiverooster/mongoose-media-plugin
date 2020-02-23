@@ -24,7 +24,8 @@ describe( "DB",  () => {
                 setup = new Configuration({
                     bucket: process.env.BUCKET || "mongoose-media-plugin-test",
                     createBucket: true,
-                    types: [ "image/*", "video/*", "/webm" ]
+                    types: [ "image/*", "video/*", "/webm" ],
+                    cache: true
                 } ),
                 Schema = mongoose.Schema( { name: { type: String } } ),
                 config = await setup.Configure(),
@@ -48,6 +49,11 @@ describe( "DB",  () => {
             } );
         })()
     } ).timeout(50000);
+
+    it( "Should be cached", ( done  => {
+        expect( fs.existsSync( `/tmp/${id}` ) ).to.not.be.true;
+        done();
+    } ) ).timeout(50000);
 
 
     it( "Should be invalid", ( done ) => {

@@ -14,7 +14,9 @@ interface Config {
     // processImages?: boolean
     // imageDimensions?: [ [ number, number ] ],
     // processVideos?: boolean,
-    createBucket?:boolean
+    createBucket?:boolean;
+    cache?:boolean;
+    timeout?:number;
 }
 
 export default class Configuration {
@@ -30,6 +32,7 @@ export default class Configuration {
     readonly imageDimensions?: [ [ number, number ] ];
     readonly processVideos?: boolean;
     readonly types?:string[];
+    public readonly cache:boolean = false;
 
     private verified: boolean;
 
@@ -66,10 +69,16 @@ export default class Configuration {
             )
         }
 
+        this.cache = config.cache || false;
+
         this.Credentials = new Credentials( this.AWS_ACCESS_KEY_ID, this.AWS_SECRET_ACCESS_KEY );
+
         this.AWS = new AWSConfig({
             credentials: this.Credentials,
-            region: this.region
+            region: this.region,
+            httpOptions: {
+                timeout: config.timeout || 240000
+            }
         } );
 
         this.S3 = new S3({

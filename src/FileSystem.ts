@@ -1,5 +1,6 @@
 import Configuration from './Configuration';
 import { S3 } from 'aws-sdk'
+import * as fs from "fs";
 import * as stream from "stream";
 
 class MockStream extends stream.PassThrough {
@@ -49,10 +50,16 @@ export default class FileSystem {
 
     readonly bucket:string;
     readonly S3:S3;
+    readonly useCache:boolean;
 
     constructor( Connector:Configuration ) {
         this.bucket = Connector.bucket;
         this.S3 = Connector.S3;
+        this.useCache = Connector.cache;
+    }
+
+    private checkLocalCache( key ) {
+        return fs.existsSync( `/tmp/${key}` );
     }
 
     public createReadStream( key:string, range?:string ):stream.Readable {
@@ -67,10 +74,28 @@ export default class FileSystem {
             params.Range = range;
         }
 
+        if ( this.useCache ) {
+
+            if ( this.checkLocalCache( key ) ) {
+                return fs.createReadStream( `/tmp/${key}` );
+            }
+
+            const
+                readStream = this.S3.getObject( params ).createReadStream(),
+                writeStream = fs.createWriteStream( '/tmp/${key' );
+
+            readStream.pipe( writeStream );
+        }
+
         return this.S3.getObject( params ).createReadStream();
     }
 
     public createWriteStream( key:string, options?:object ):MockStream {
+        if ( this.useCache ) {
+            if (this.checkLocalCache(key)) {
+                fs.unlinkSync( `/tmp/${key}`)
+            }
+        }
         return new MockStream( this.S3, this.bucket, key, options );
     }
 
