@@ -25,7 +25,8 @@ describe( "DB",  () => {
                     bucket: process.env.BUCKET || "mongoose-media-plugin-test",
                     createBucket: true,
                     types: [ "image/*", "video/*", "/webm" ],
-                    cache: true
+                    cache: true,
+                    skipStreamInspection: false
                 } ),
                 Schema = mongoose.Schema( { name: { type: String } } ),
                 config = await setup.Configure(),
@@ -115,8 +116,8 @@ describe( "DB",  () => {
             .exec()
             .then( ( doc ) => {
                 expect( doc ).to.not.be.null;
-               expect( doc.ContentType ).to.equal( "video/mp4" );
-               return done();
+                expect( doc.ContentType ).to.equal( "video/mp4" );
+                return done();
             } )
     } );
 

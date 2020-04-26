@@ -17,6 +17,7 @@ interface Config {
     createBucket?:boolean;
     cache?:boolean;
     timeout?:number;
+    skipStreamInspection?:boolean;
 }
 
 export default class Configuration {
@@ -38,6 +39,7 @@ export default class Configuration {
 
     public Credentials: Credentials;
     public Bucket:any;
+    public skipStreamInspection: boolean;
 
     constructor ( config:Config ) {
 
@@ -70,6 +72,8 @@ export default class Configuration {
         }
 
         this.cache = config.cache || false;
+
+        this.skipStreamInspection = config.skipStreamInspection || false;
 
         this.Credentials = new Credentials( this.AWS_ACCESS_KEY_ID, this.AWS_SECRET_ACCESS_KEY );
 

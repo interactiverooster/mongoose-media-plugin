@@ -171,11 +171,17 @@ class MediaPlugin {
                     if ( result.mime ) {
 
                         options = {
-                            ContentType: doc.ContentType ? doc.ContentType : result.mime.type,
+                            ContentType: result.mime.type,
                             ContentEncoding: result.mime.encoding
                         };
 
                         doc.ContentType = options.ContentType;
+                    }
+                    else {
+                        options = {
+                            ContentType: doc.ContentType,
+                            ContentEncoding: "utf-8"
+                        };
                     }
 
                     remote = this.FileSystem.createWriteStream( MediaPlugin.path( doc ), options );
@@ -209,6 +215,10 @@ class MediaPlugin {
     private checkMime( fileData:inspected, doc:any ) {
         return new Promise( ( accept, reject ) => {
 
+            if ( this.config.skipStreamInspection ) {
+                return accept( fileData );
+            }
+
             let valid = this.mimeValidator( fileData.mime.type );
 
             if ( valid ) {
@@ -225,7 +235,15 @@ class MediaPlugin {
     }
 
     private inspect( input ) {
+
         return new Promise( ( accept, reject ) => {
+            if ( this.config.skipStreamInspection ) {
+                return accept( {
+                    mime: false,
+                    output: input
+                } )
+            }
+
             mtype(input, function (err, mime, output) {
                 if (err) {
                     return reject( err );
