@@ -171,11 +171,11 @@ class MediaPlugin {
                     if ( result.mime ) {
 
                         options = {
-                            ContentType: result.mime.type,
+                            ContentType: doc.ContentType ? doc.ContentType : result.mime.type,
                             ContentEncoding: result.mime.encoding
                         };
 
-                        doc.ContentType = result.mime.type;
+                        doc.ContentType = options.ContentType;
                     }
 
                     remote = this.FileSystem.createWriteStream( MediaPlugin.path( doc ), options );
