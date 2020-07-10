@@ -74,20 +74,26 @@ export default class FileSystem {
             params.Range = range;
         }
 
-        if ( this.useCache ) {
+        try {
+            if ( this.useCache ) {
 
-            if ( this.checkLocalCache( key ) ) {
-                return fs.createReadStream( `/tmp/${key}` );
+                if ( this.checkLocalCache( key ) ) {
+                    return fs.createReadStream( `/tmp/${key}` );
+                }
+
+                const
+                    readStream = this.S3.getObject( params ).createReadStream(),
+                    writeStream = fs.createWriteStream( `/tmp/${key}` );
+
+                readStream.pipe( writeStream );
             }
 
-            const
-                readStream = this.S3.getObject( params ).createReadStream(),
-                writeStream = fs.createWriteStream( `/tmp/${key}` );
-
-            readStream.pipe( writeStream );
+            return this.S3.getObject( params ).createReadStream();
         }
-
-        return this.S3.getObject( params ).createReadStream();
+        catch( e ) {
+            console.error( e );
+            return undefined;
+        }
     }
 
     public createWriteStream( key:string, options?:object ):MockStream {
@@ -103,10 +109,9 @@ export default class FileSystem {
         if ( this.useCache ) {
 
             const
-                readStream = stream,
                 writeStream = fs.createWriteStream( `/tmp/${key}` );
 
-            readStream.pipe( writeStream );
+            stream.pipe( writeStream );
         }
 
         return stream;

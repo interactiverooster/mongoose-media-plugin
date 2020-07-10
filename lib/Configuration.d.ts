@@ -12,6 +12,7 @@ interface Config {
     createBucket?: boolean;
     cache?: boolean;
     timeout?: number;
+    skipStreamInspection?: boolean;
 }
 export default class Configuration {
     readonly AWS_ACCESS_KEY_ID: string;
@@ -29,6 +30,7 @@ export default class Configuration {
     private verified;
     Credentials: Credentials;
     Bucket: any;
+    skipStreamInspection: boolean;
     constructor(config: Config);
     Configure(): Promise<Configuration>;
     private _verifyConfig;
