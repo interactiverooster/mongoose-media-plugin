@@ -19,7 +19,7 @@ export default class FileSystem {
     readonly useCache: boolean;
     constructor(Connector: Configuration);
     private checkLocalCache;
-    createReadStream(key: string, range?: string): stream.Readable;
+    createReadStream(key: string, doc: any, range?: string): stream.Readable;
     createWriteStream(key: string, options?: object): MockStream;
     head(key: any): Promise<unknown>;
     unlink(key: string): Promise<boolean>;

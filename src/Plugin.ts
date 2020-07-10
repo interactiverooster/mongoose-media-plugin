@@ -53,7 +53,13 @@ class MediaPlugin {
         this.mimeValidator = this.makeMimeValidator();
 
         this.Schema.methods.range = function( range:string ) {
-            return self.FileSystem.createReadStream( MediaPlugin.path( this ), range );
+            const doc = this;
+
+            if ( doc.ETag ) {
+                return self.FileSystem.createReadStream( MediaPlugin.path( this ), doc, range );
+            }
+
+            return null;
         };
 
         this.Schema.pre( "save", function( next ) {
@@ -89,10 +95,18 @@ class MediaPlugin {
 
         this.Schema.virtual( "body" )
             .get( function() {
-                if ( this.__pendingDelete || this.__Stream ) {
+
+                const doc = this;
+
+                if ( doc.__pendingDelete || doc.__Stream ) {
                     return null;
                 }
-                return self.FileSystem.createReadStream( this._id.toString() );
+
+                if ( doc.ETag ) {
+                    return self.FileSystem.createReadStream( doc._id.toString(), doc  );
+                }
+
+                return null;
             } )
             .set( function( v ) {
                 this.__Stream = v;

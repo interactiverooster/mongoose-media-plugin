@@ -62,33 +62,42 @@ export default class FileSystem {
         return fs.existsSync( `/tmp/${key}` );
     }
 
-    public createReadStream( key:string, range?:string ):stream.Readable {
-
-        let
-            params:any = {
-                Bucket: this.bucket,
-                Key: key,
-            };
-
-        if ( range ) {
-            params.Range = range;
-        }
+    public createReadStream( key:string, doc:any, range?:string ):stream.Readable {
 
         try {
-            if ( this.useCache ) {
+            let
+                params: any = {
+                    Bucket: this.bucket,
+                    Key: key,
+                };
 
-                if ( this.checkLocalCache( key ) ) {
-                    return fs.createReadStream( `/tmp/${key}` );
-                }
-
-                const
-                    readStream = this.S3.getObject( params ).createReadStream(),
-                    writeStream = fs.createWriteStream( `/tmp/${key}` );
-
-                readStream.pipe( writeStream );
+            if (range) {
+                params.Range = range;
             }
 
-            return this.S3.getObject( params ).createReadStream();
+            this.S3.headObject(params).promise()
+                .then( () => {
+
+
+                    if (this.useCache) {
+
+                        if (this.checkLocalCache(key)) {
+                            return fs.createReadStream(`/tmp/${key}`);
+                        }
+
+                        const
+                            readStream = this.S3.getObject(params).createReadStream(),
+                            writeStream = fs.createWriteStream(`/tmp/${key}`);
+
+                        readStream.pipe(writeStream);
+                    }
+
+                    return this.S3.getObject(params).createReadStream();
+                } )
+                .catch( ( e ) => {
+                    console.error(e);
+                    return undefined;
+                } );
         }
         catch( e ) {
             console.error( e );
