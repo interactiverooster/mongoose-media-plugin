@@ -75,29 +75,20 @@ export default class FileSystem {
                 params.Range = range;
             }
 
-            this.S3.headObject(params).promise()
-                .then( () => {
+            if (this.useCache) {
 
+                if (this.checkLocalCache(key)) {
+                    return fs.createReadStream(`/tmp/${key}`);
+                }
 
-                    if (this.useCache) {
+                const
+                    readStream = this.S3.getObject(params).createReadStream(),
+                    writeStream = fs.createWriteStream(`/tmp/${key}`);
 
-                        if (this.checkLocalCache(key)) {
-                            return fs.createReadStream(`/tmp/${key}`);
-                        }
+                readStream.pipe(writeStream);
+            }
 
-                        const
-                            readStream = this.S3.getObject(params).createReadStream(),
-                            writeStream = fs.createWriteStream(`/tmp/${key}`);
-
-                        readStream.pipe(writeStream);
-                    }
-
-                    return this.S3.getObject(params).createReadStream();
-                } )
-                .catch( ( e ) => {
-                    console.error(e);
-                    return undefined;
-                } );
+            return this.S3.getObject(params).createReadStream();
         }
         catch( e ) {
             console.error( e );
