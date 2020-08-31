@@ -5,6 +5,7 @@ import TypeStream from './StreamType';
 import ReadStream from 'stream';
 import mongoose from 'mongoose';
 import mtype from 'stream-mmmagic';
+import { Document as MongooseDocument } from "mongoose";
 
 interface inspected {
     mime: {
@@ -12,6 +13,16 @@ interface inspected {
         encoding: string
     },
     output:ReadStream
+}
+
+export interface Document extends MongooseDocument {
+    uploaded: Date;
+    created: Date;
+    updated: Date;
+    Etag: string;
+    Error: string;
+    ContentType: string;
+    Size: number;
 }
 
 class MediaPlugin {
@@ -23,7 +34,7 @@ class MediaPlugin {
     readonly S3:S3;
     readonly mimeValidator:any;
 
-    readonly fields:object[] = [
+    public static fields:object[] = [
         { uploaded: { type: Date } },
         { created: { type: Date } },
         { updated: { type: Date, default: Date.now() } },
@@ -162,7 +173,7 @@ class MediaPlugin {
     }
 
     private addFields() {
-        this.fields.map( ( field ) => {
+        MediaPlugin.fields.map( ( field ) => {
             this.Schema.add( field );
         } );
     }
